@@ -1,0 +1,8 @@
+https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_reserved_characters
+>>> import urllib.parse
+>>> urllib.parse.quote('*%&')
+'%2A%25%26'
+>>> urllib.parse.quote('*%& ')
+'%2A%25%26%20'
+>>> urllib.parse.quote_plus('*%& ')
+'%2A%25%26+'
