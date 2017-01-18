@@ -48,10 +48,10 @@ def tsb_grab():
         products_ref_list[i] = (re.search('pCode=(.*?)&amp', product_url_list[i]['href'])).group(1)
 
     #### Go through every product page
-    for product in products_ref_list:
+#    for product in products_ref_list:
         # Get the TSB list from a product page 
-        r_product = s.get("https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.{0}.product.html?filter=technical-service-bulletin".format(product)
-        product_page_soup = BeautifulSoup(r_product.text, 'html.parser')
+#        r_product = s.get("https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.{0}.product.html?filter=technical-service-bulletin".format(product)
+#        product_page_soup = BeautifulSoup(r_product.text, 'html.parser')
 
         # Parse results panel in document library
 
