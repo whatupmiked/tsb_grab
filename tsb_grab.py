@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 import getpass
-import requests
+from requests_toolbelt import SSLAdapter
+import requests 
+import ssl
 from bs4 import BeautifulSoup
 import os
+
 
 
 def tsb_grab():
@@ -20,13 +23,17 @@ def tsb_grab():
     url_mlxe_example = "https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.mlxeswitch.product.html?filter=technical-service-bulletin"
 
     # Create a session
+    # Terrible hack to overcome nasty SSL HANDSHAKE erroR
+    requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA'
+    # End of hack
     s = requests.Session()
+    s.mount('https://', SSLAdapter(ssl.PROTOCOL_TLSv1))
 
     #### Authenticate to my.brocade.com and store the session cookies.
     # From Alexander curl example
     # curl "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser" -c cookies.txt --compressed --data "username=yourlogin&password=yourpassword" 1>/dev/null 2>/dev/null
     # http://docs.python-requests.org/en/master/user/advanced/
-    post_data = "username={0}&password={1}".format(username, password)
+    post_data = {'username': username, 'password' : password}
     r_login = s.post(url_login, data=post_data)
 
     print(r_login.text)
