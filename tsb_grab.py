@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import getpass
-from requests_toolbelt import SSLAdapter
 import requests 
 import ssl
 from bs4 import BeautifulSoup
@@ -27,7 +26,6 @@ def tsb_grab():
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA'
     # End of hack
     s = requests.Session()
-    s.mount('https://', SSLAdapter(ssl.PROTOCOL_TLSv1))
 
     #### Authenticate to my.brocade.com and store the session cookies.
     # From Alexander curl example
