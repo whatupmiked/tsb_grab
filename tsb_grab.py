@@ -30,6 +30,7 @@ def tsb_grab():
     #### Authenticate to my.brocade.com and store the session cookies.
     # From Alexander curl example
     # curl "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser" -c cookies.txt --compressed --data "username=yourlogin&password=yourpassword" 1>/dev/null 2>/dev/null
+    # curl "https://my.brocade.com/esservice/secure/query" -H "Content-Type: application/json" -b cookies.txt --compressed --data @req.json 2>/dev/null | python -m json.tool
     # http://docs.python-requests.org/en/master/user/advanced/
     post_data = {'username': username, 'password' : password}
     r_login = s.post(url_login, data=post_data)
@@ -46,13 +47,17 @@ def tsb_grab():
 
     products_ref_list = []
 
-    #Transform the a tags into just the product_ref
+    #Transform the a tags into just the product reference
     for i in range(len(product_url_list)):
         #Get the pCode value and add it products_ref_list
         #pCode=<code>&pName=<name>
         products_ref_list.append( (re.search('pCode=(.*?)\&', product_url_list[i]['href'])).group(1) )
 
-    print(products_ref_list)
+    #Remove duplicates
+    products_ref_set = set(products_ref_list)
+    products_ref_list = sorted(list(products_ref_set))
+
+    print(*products_ref_list, sep="\n")
 
     #### Go through every product page
 #    for product in products_ref_list:
