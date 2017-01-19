@@ -4,7 +4,7 @@ import requests
 import ssl
 from bs4 import BeautifulSoup
 import os
-
+import re
 
 
 def tsb_grab():
@@ -42,15 +42,17 @@ def tsb_grab():
     #### Parse the product list
     product_list_soup = BeautifulSoup(r_product_list.text, 'html.parser')
 
-    product_url_list = product_list_soup.select('a[product-listing__product-link]')
+    product_url_list = product_list_soup.select('a.product-listing__product-link')
 
     products_ref_list = []
 
     #Transform the a tags into just the product_ref
-    for i in range(len(product_list)):
-        #Get the pCode value and put it in theproducts_ref_list
+    for i in range(len(product_url_list)):
+        #Get the pCode value and add it products_ref_list
         #pCode=<code>&pName=<name>
-        products_ref_list[i] = (re.search('pCode=(.*?)&amp', product_url_list[i]['href'])).group(1)
+        products_ref_list.append( (re.search('pCode=(.*?)\&', product_url_list[i]['href'])).group(1) )
+
+    print(products_ref_list)
 
     #### Go through every product page
 #    for product in products_ref_list:
