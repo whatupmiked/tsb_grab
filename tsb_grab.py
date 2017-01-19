@@ -22,7 +22,10 @@ def tsb_grab():
     #url_mlxe_example = "https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.mlxeswitch.product.html?filter=technical-service-bulletin"
     url_content_query = "https://my.brocade.com/esservice/secure/query"
 
-    # my.brocade.com secure query JSON template
+    # my.brocade.com secure query JSON template SOFTWARE
+    query1 = {"queryText":"bna","langCode":"en","aggsSize":0,"size":20,"sortOrder":{"fieldname":"Title","order":"asc"},"from":0,"filters":[{"name":"producttype","values":["Software"]},{"name":"contenttype","values":["Technical Service Bulletin"]}],"aggregateFields":[{"name":"contenttype","includeValues":["Announcement","Architecture Guide","Brochure","Data Sheet","eBook","FAQs","Industry Report","Infographics","Newsletter","Partner Brief","Product Matrix","Security Bulletin","Stencils","Success Story","White Paper","Brocade Validated Design","Product Design Guide","Solution Design Guide","Validation Test Report","Solution Brief","Deployment Guide","Feature Guide","At A Glance","Customer Presentation","Technical Service Bulletin","End of Life Notice","End of Support Notice","End of Availability Notice","Target Path Selection Guide"],"sortByTerm":"true","asc":"true"}],"queryFields":["productcode"]}
+
+    # my.brocade.com secure query JSON template HARDWARE
     query2 = {
         "queryText":"icx7750",
         "langCode":"en",
