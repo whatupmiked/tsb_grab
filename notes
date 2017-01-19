@@ -6,3 +6,7 @@ https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_reserved_charact
 '%2A%25%26%20'
 >>> urllib.parse.quote_plus('*%& ')
 '%2A%25%26+'
+
+
+SSL Cipher Suites
+http://bugs.python.org/issue20995
