@@ -16,12 +16,13 @@ def tsb_grab():
         print("No user-name or password defined, check help (tsb_grab -h)")
         return False
 
-    url_brocade = "http://www.brocade.com"
+    #url_brocade = "http://www.brocade.com"
     url_login = "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser"
     url_product_catalog = "https://my.brocade.com/wps/myportal/myb/products/productcatalog"
     #url_mlxe_example = "https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.mlxeswitch.product.html?filter=technical-service-bulletin"
     url_content_query = "https://my.brocade.com/esservice/secure/query"
 
+    # my.brocade.com secure query JSON template
     query2 = {
         "queryText":"icx7750",
         "langCode":"en",
@@ -56,14 +57,16 @@ def tsb_grab():
             "queryFields":["productcode"]
         }
 
+    #################################################################
     # Create a session
-    # Terrible hack to overcome nasty SSL HANDSHAKE erroR
+    # Terrible hack to overcome nasty SSL HANDSHAKE error
     # Down-grade ciphers for my.brocade.com login
     #requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA'
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA:ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS'
     # End of hack
     s = requests.Session()
 
+    #################################################################
     #### Authenticate to my.brocade.com and store the session cookies.
     # From Alexander curl example
     # curl "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser" -c cookies.txt --compressed --data "username=yourlogin&password=yourpassword" 1>/dev/null 2>/dev/null
@@ -74,10 +77,12 @@ def tsb_grab():
 
     print(r_login.text)
 
-    #### Pull the product list
+    #################################################################
+    #### Get the list of products
+    # Pull the product list
     r_product_list = s.get(url_product_catalog)
 
-    #### Parse the product list
+    # Parse the product list
     product_list_soup = BeautifulSoup(r_product_list.text, 'html.parser')
 
     product_url_list = product_list_soup.select('a.product-listing__product-link')
@@ -86,23 +91,14 @@ def tsb_grab():
 
     #Transform the a tags into just the product reference
     for i in range(len(product_url_list)):
-        #Get the pCode value and add it products_ref_list
-        #pCode=<code>&pName=<name>
+        #Get the pCode value and add it products_ref_list pCode=<code>&pName=<name>
         products_ref_list.append( (re.search('pCode=(.*?)\&', product_url_list[i]['href'])).group(1) )
 
     #Remove duplicates
     products_ref_set = set(products_ref_list)
     products_ref_list = sorted(list(products_ref_set))
 
-    #print(*products_ref_list, sep="\n")
-    #print("Trying ", products_ref_list[0])
-    #query2["queryText"] = products_ref_list[0]
-    #r_product = s.post(url_content_query, json=query2)
-    #product_tsbs = r_product.json()
-
-    #for i in range(len(product_tsbs['response']['hits']['hits'])):
-    #    print(product_tsbs['response']['hits']['hits'][i]['fields']['filepath'][0])
-
+    #################################################################
     #### Go through every product page
     for n in range(len(products_ref_list)):
         # Get the TSB list from a product page 
@@ -112,7 +108,7 @@ def tsb_grab():
 
         print("Getting TSB URL for {0}".format(products_ref_list[n]))
 
-        #Print the TSB list for that product
+        #Print the TSBs URL list for that product
         for i in range(len(product_tsbs['response']['hits']['hits'])):
             print(product_tsbs['response']['hits']['hits'][i]['fields']['filepath'][0])
 
