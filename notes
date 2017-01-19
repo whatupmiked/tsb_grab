@@ -10,3 +10,17 @@ https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_reserved_charact
 
 SSL Cipher Suites
 http://bugs.python.org/issue20995
+
+
+Actually getting the list of TSBs is not that hard. It's enough to issue following two cURL requests:
+ 1) curl "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser" -c cookies.txt --compressed --data "username=yourlogin&password=yourpassword" 1>/dev/null 2>/dev/null
+  2) curl "https://my.brocade.com/esservice/secure/query" -H "Content-Type: application/json" -b cookies.txt --compressed --data @req.json 2>/dev/null | python -m json.tool
+
+   req.json file, used in the previous command is just a copy-paste from what portal requests, when a user presses "sort by Newest"
+
+    This way one can get a nice and easy to process json file, which has all the necessary information. I'm attaching example of such query. The query response states the title of TSB, post date, and pdf URL. I think it's enough to check whether the file is new, and then download it (with yet another curl query).
+
+     Next I am having a few uncertainties:
+      * For instance how will a a script filter out the product(s) a particular TSB covers? From the first sight, I don't see an obvious pattern how files are named, so a product family could be figured out easily.
+       * Another question is what a BWC value-add role will be. Sure it can launch the scripts as per above, but what else?
+
