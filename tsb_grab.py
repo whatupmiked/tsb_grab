@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import getpass
-import requests 
+import requests
 import ssl
 from bs4 import BeautifulSoup
 import os
@@ -19,11 +19,48 @@ def tsb_grab():
     url_brocade = "http://www.brocade.com"
     url_login = "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser"
     url_product_catalog = "https://my.brocade.com/wps/myportal/myb/products/productcatalog"
-    url_mlxe_example = "https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.mlxeswitch.product.html?filter=technical-service-bulletin"
+    #url_mlxe_example = "https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.mlxeswitch.product.html?filter=technical-service-bulletin"
+    url_content_query = "https://my.brocade.com/esservice/secure/query"
+
+    query2 = {
+        "queryText":"icx7750",
+        "langCode":"en",
+        "aggsSize":0,
+        "size":20,
+        "sortOrder":{
+            "fieldname":"Title",
+            "order":"asc"
+            },
+        "from":0,
+        "filters":[
+            {
+                "name":"producttype",
+                "values":["Hardware"]
+            },
+            {
+                "name":"contenttype",
+                "values":["Technical Service Bulletin"]
+            }],
+            "aggregateFields":[{
+                "name":"contenttype",
+                "includeValues":[
+                    "Technical Service Bulletin",
+                    "End of Life Notice",
+                    "End of Support Notice",
+                    "End of Availability Notice",
+                    "Target Path Selection Guide"
+                    ],
+                "sortByTerm":"true",
+                "asc":"true"
+                }],
+            "queryFields":["productcode"]
+        }
 
     # Create a session
     # Terrible hack to overcome nasty SSL HANDSHAKE erroR
-    requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA'
+    # Down-grade ciphers for my.brocade.com login
+    #requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA'
+    requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA:ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS'
     # End of hack
     s = requests.Session()
 
@@ -57,17 +94,28 @@ def tsb_grab():
     products_ref_set = set(products_ref_list)
     products_ref_list = sorted(list(products_ref_set))
 
-    print(*products_ref_list, sep="\n")
+    #print(*products_ref_list, sep="\n")
+    #print("Trying ", products_ref_list[0])
+    #query2["queryText"] = products_ref_list[0]
+    #r_product = s.post(url_content_query, json=query2)
+    #product_tsbs = r_product.json()
+
+    #for i in range(len(product_tsbs['response']['hits']['hits'])):
+    #    print(product_tsbs['response']['hits']['hits'][i]['fields']['filepath'][0])
 
     #### Go through every product page
-#    for product in products_ref_list:
+    for n in range(len(products_ref_list)):
         # Get the TSB list from a product page 
-#        r_product = s.get("https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.{0}.product.html?filter=technical-service-bulletin".format(product)
-#        product_page_soup = BeautifulSoup(r_product.text, 'html.parser')
+        query2["queryText"] = products_ref_list[n]
+        r_product = s.post(url_content_query, json=query2)
+        product_tsbs = r_product.json()
 
-        # Parse results panel in document library
+        print("Getting TSB URL for {0}".format(products_ref_list[n]))
 
+        #Print the TSB list for that product
+        for i in range(len(product_tsbs['response']['hits']['hits'])):
+            print(product_tsbs['response']['hits']['hits'][i]['fields']['filepath'][0])
 
-    #soup = BeautifulSoup(r.text, 'html.parser')
+        print()
 
 tsb_grab()
