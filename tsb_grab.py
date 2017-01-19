@@ -16,7 +16,7 @@ def tsb_grab():
         print("No user-name or password defined, check help (tsb_grab -h)")
         return False
 
-    #url_brocade = "http://www.brocade.com"
+    url_brocade = "http://www.brocade.com"
     url_login = "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser"
     url_product_catalog = "https://my.brocade.com/wps/myportal/myb/products/productcatalog"
     #url_mlxe_example = "https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.mlxeswitch.product.html?filter=technical-service-bulletin"
@@ -82,6 +82,9 @@ def tsb_grab():
 
     #################################################################
     #### Get the list of products
+
+    ####### Need to add some work here to check if the product is defined as software/hardware for the TSB query
+
     # Pull the product list
     r_product_list = s.get(url_product_catalog)
 
