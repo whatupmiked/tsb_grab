@@ -15,6 +15,7 @@ def cookie_sniff():
     #url_my_brocade = "http://my.brocade.com"
     url_my_brocade_wps = "https://my.brocade.com/wps/myportal"
     #url_brocade_login = "http://login.brocade.com"
+    url_pdf = "http://www.brocade.com/content/dam/secure-external/documents/technical-service-bulletin/TSB-2016-244-A.pdf"
 
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA:ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS'
 
@@ -33,7 +34,8 @@ def cookie_sniff():
 
     r_login = s.post(url_login, data=post_data)
 
-    print("Cookies after login: ", *(s.cookies.items()), "\n", sep="\n")
+    print("Cookies after login: ", *(s.cookies.items()), sep="\n")
+    print()
 
     #for i in range(len(url_list)):
     #    r = s.get(url_list[i])
@@ -50,5 +52,10 @@ def cookie_sniff():
     s.cookies.set('mybrocInfo', 'brEntitlement='+e_code.group(1))
 
     print("Cookies after entitlement: ", *(s.cookies.items()), sep="\n")
+
+    r_pdf = s.get(url_pdf)
+
+    with open('tsb.pdf', 'wb') as f:
+        f.write(r_pdf.content)
 
 cookie_sniff()
