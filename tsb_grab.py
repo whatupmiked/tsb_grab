@@ -38,10 +38,6 @@ def tsb_grab():
         "from":0,
         "filters":[
             {
-                "name":"producttype",
-                "values":["Hardware"]
-            },
-            {
                 "name":"contenttype",
                 "values":["Technical Service Bulletin"]
             }],
@@ -49,10 +45,6 @@ def tsb_grab():
                 "name":"contenttype",
                 "includeValues":[
                     "Technical Service Bulletin",
-                    "End of Life Notice",
-                    "End of Support Notice",
-                    "End of Availability Notice",
-                    "Target Path Selection Guide"
                     ],
                 "sortByTerm":"true",
                 "asc":"true"
