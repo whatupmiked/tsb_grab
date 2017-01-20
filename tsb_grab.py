@@ -19,11 +19,7 @@ def tsb_grab():
     url_brocade = "http://www.brocade.com"
     url_login = "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser"
     url_product_catalog = "https://my.brocade.com/wps/myportal/myb/products/productcatalog"
-    #url_mlxe_example = "https://brocade.com/en/support/document-library/dl-segment-products-os-detail-page.mlxeswitch.product.html?filter=technical-service-bulletin"
     url_content_query = "https://my.brocade.com/esservice/secure/query"
-
-    # my.brocade.com secure query JSON template SOFTWARE
-    query1 = {"queryText":"bna","langCode":"en","aggsSize":0,"size":20,"sortOrder":{"fieldname":"Title","order":"asc"},"from":0,"filters":[{"name":"producttype","values":["Software"]},{"name":"contenttype","values":["Technical Service Bulletin"]}],"aggregateFields":[{"name":"contenttype","includeValues":["Announcement","Architecture Guide","Brochure","Data Sheet","eBook","FAQs","Industry Report","Infographics","Newsletter","Partner Brief","Product Matrix","Security Bulletin","Stencils","Success Story","White Paper","Brocade Validated Design","Product Design Guide","Solution Design Guide","Validation Test Report","Solution Brief","Deployment Guide","Feature Guide","At A Glance","Customer Presentation","Technical Service Bulletin","End of Life Notice","End of Support Notice","End of Availability Notice","Target Path Selection Guide"],"sortByTerm":"true","asc":"true"}],"queryFields":["productcode"]}
 
     # my.brocade.com secure query JSON template HARDWARE
     query2 = {
@@ -73,9 +69,10 @@ def tsb_grab():
     print(r_login.text)
 
     #################################################################
-    #### Get the list of products
+    #### Get my.brocade.com entitlement cookies
 
-    ####### Need to add some work here to check if the product is defined as software/hardware for the TSB query
+    #################################################################
+    #### Get the list of products
 
     # Pull the product list
     r_product_list = s.get(url_product_catalog)
