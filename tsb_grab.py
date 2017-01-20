@@ -75,7 +75,7 @@ def tsb_grab():
     e_code = re.search('brEntitlement=(.*?)[,;]', entitlement_string.__str__())
 
     # Add entitlement cookie to cookiejar for session
-    s.cookies.set('brEntitlement', e_code.group(1))
+    s.cookies.set('mybrocInfo', 'brEntitlement='+e_code.group(1))
 
     #################################################################
     #### Get the list of products

@@ -47,7 +47,7 @@ def cookie_sniff():
 
     e_code = re.search('brEntitlement=(.*?)[,;]', entitlement_string.__str__())
 
-    s.cookies.set('brEntitlement', e_code.group(1))
+    s.cookies.set('mybrocInfo', 'brEntitlement='+e_code.group(1))
 
     print("Cookies after entitlement: ", *(s.cookies.items()), sep="\n")
 
