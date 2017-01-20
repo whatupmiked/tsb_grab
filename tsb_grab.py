@@ -20,6 +20,7 @@ def tsb_grab():
     url_login = "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser"
     url_product_catalog = "https://my.brocade.com/wps/myportal/myb/products/productcatalog"
     url_content_query = "https://my.brocade.com/esservice/secure/query"
+    url_my_brocade_wps = "https://my.brocade.com/wps/myportal"
 
     # my.brocade.com secure query JSON template HARDWARE
     query2 = {
@@ -59,10 +60,6 @@ def tsb_grab():
 
     #################################################################
     #### Authenticate to my.brocade.com and store the session cookies.
-    # From Alexander curl example
-    # curl "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser" -c cookies.txt --compressed --data "username=yourlogin&password=yourpassword" 1>/dev/null 2>/dev/null
-    # curl "https://my.brocade.com/esservice/secure/query" -H "Content-Type: application/json" -b cookies.txt --compressed --data @req.json 2>/dev/null | python -m json.tool
-    # http://docs.python-requests.org/en/master/user/advanced/
     post_data = {'username': username, 'password' : password}
     r_login = s.post(url_login, data=post_data)
 
@@ -70,6 +67,15 @@ def tsb_grab():
 
     #################################################################
     #### Get my.brocade.com entitlement cookies
+    r_entitle = s.get(url_my_brocade_wps)
+    entitle_soup = BeautifulSoup(r_entitle.text, 'html.parser')
+
+    # Extract entitlement string from web-page
+    entitlement_string = entitle_soup.find_all('script', string=re.compile('brEntitlement'))
+    e_code = re.search('brEntitlement=(.*?)[,;]', entitlement_string.__str__())
+
+    # Add entitlement cookie to cookiejar for session
+    s.cookies.set('brEntitlement', e_code.group(1))
 
     #################################################################
     #### Get the list of products
