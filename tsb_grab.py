@@ -5,9 +5,22 @@ import ssl
 from bs4 import BeautifulSoup
 import os
 import re
+from optparse import OptionParser
 
 
 def tsb_grab():
+
+    parser = OptionParser(usage="usage: %prog [options]")
+
+    parser.set_defaults(onlyFavorites = False)
+
+    parser.add_option("--fav", action="store_true", dest="onlyFavorites",
+                      help="Handle only TSBs for Brocade products, an authenticated user has choosen as favorite")
+    parser.add_option("--no-fav", action="store_false", dest="onlyFavorites",
+                      help="Handle TSBs for all Brocade products")
+    (options, args) = parser.parse_args()
+
+    onlyFavorites = options.onlyFavorites
 
     username = input("Username: ")
     password = getpass.getpass()
@@ -86,7 +99,13 @@ def tsb_grab():
     # Parse the product list
     product_list_soup = BeautifulSoup(r_product_list.text, 'html.parser')
 
-    product_url_list = product_list_soup.select('a.product-listing__product-link')
+    product_list_wanted = None
+    if onlyFavorites == True:
+        product_list_wanted = product_list_soup.find('div', class_="product-listing__category product-listing__category-favourites")
+    else:
+        product_list_wanted = product_list_soup.find('div', class_="product-listing__category-container")
+
+    product_url_list = product_list_wanted.select('a.product-listing__product-link')
 
     products_ref_list = []
 
@@ -96,6 +115,7 @@ def tsb_grab():
         products_ref_list.append( (re.search('pCode=(.*?)\&', product_url_list[i]['href'])).group(1) )
 
     #Remove duplicates
+    # Should be no duplicates???
     products_ref_set = set(products_ref_list)
     products_ref_list = sorted(list(products_ref_set))
 
