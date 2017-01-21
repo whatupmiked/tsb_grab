@@ -6,10 +6,14 @@ from bs4 import BeautifulSoup
 import os
 import re
 from optparse import OptionParser
-
+#import argparse
 
 def tsb_grab():
 
+    #######################################################
+    #### Parse Command-line options
+    # Let's switch to argparse later
+    # http://stackoverflow.com/questions/3217673/why-use-argparse-rather-than-optparse
     parser = OptionParser(usage="usage: %prog [options]")
 
     parser.set_defaults(onlyFavorites = False)
@@ -22,6 +26,8 @@ def tsb_grab():
 
     onlyFavorites = options.onlyFavorites
 
+    #######################################################
+    #### Query user for credentials
     username = input("Username: ")
     password = getpass.getpass()
 
@@ -29,13 +35,15 @@ def tsb_grab():
         print("No user-name or password defined, check help (tsb_grab -h)")
         return False
 
+    #######################################################
+    #### Variables for querys
     url_brocade = "http://www.brocade.com"
     url_login = "https://logineai.brocade.com/BrocadeEAI/AuthenticateUser"
     url_product_catalog = "https://my.brocade.com/wps/myportal/myb/products/productcatalog"
     url_content_query = "https://my.brocade.com/esservice/secure/query"
     url_my_brocade_wps = "https://my.brocade.com/wps/myportal"
 
-    # my.brocade.com secure query JSON template HARDWARE
+    # my.brocade.com secure query JSON template 
     query2 = {
         "queryText":"icx7750",
         "langCode":"en",
@@ -63,10 +71,9 @@ def tsb_grab():
         }
 
     #################################################################
-    # Create a session
+    #### Create a session
     # Terrible hack to overcome nasty SSL HANDSHAKE error
-    # Down-grade ciphers for my.brocade.com login
-    #requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA'
+    # Down-grade ciphers for my.brocade.com login 'DES-CBC3-SHA'
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA:ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS'
     # End of hack
     s = requests.Session()
@@ -88,7 +95,7 @@ def tsb_grab():
     e_code = re.search('brEntitlement=(.*?)[,;]', entitlement_string.__str__())
 
     # Add entitlement cookie to cookiejar for session
-    s.cookies.set('mybrocInfo', 'brEntitlement='+e_code.group(1))
+    s.cookies.set('mybrocInfo', 'brEntitlement=' + e_code.group(1))
 
     #################################################################
     #### Get the list of products
@@ -120,6 +127,9 @@ def tsb_grab():
     products_ref_list = sorted(list(products_ref_set))
 
     #################################################################
+    #### Build list of currently downloaded TSBs
+
+    #################################################################
     #### Go through every product page
     for n in range(len(products_ref_list)):
         # Get the TSB list from a product page 
@@ -131,8 +141,13 @@ def tsb_grab():
 
         #Print the TSBs URL list for that product
         for i in range(len(product_tsbs['response']['hits']['hits'])):
-            print(product_tsbs['response']['hits']['hits'][i]['fields']['filepath'][0])
-
+            tsb_path = product_tsbs['response']['hits']['hits'][i]['fields']['filepath'][0]
+            #Print TSB 
+            print(tsb_path)
+            #Store TSB URI
         print()
+
+    #################################################################
+    #### Compare the URI list to the downloaded TSBs list and download any new TSBs
 
 tsb_grab()
