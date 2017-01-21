@@ -5,11 +5,22 @@ import ssl
 from bs4 import BeautifulSoup
 import os
 import re
-
-onlyFavorites = True
+from optparse import OptionParser
 
 
 def tsb_grab():
+
+    parser = OptionParser(usage="usage: %prog [options]")
+
+    parser.set_defaults(onlyFavorites = False)
+
+    parser.add_option("--fav", action="store_true", dest="onlyFavorites",
+                      help="Handle only TSBs for Brocade products, an authenticated user has choosen as favorite")
+    parser.add_option("--no-fav", action="store_false", dest="onlyFavorites",
+                      help="Handle TSBs for all Brocade products")
+    (options, args) = parser.parse_args()
+
+    onlyFavorites = options.onlyFavorites
 
     username = input("Username: ")
     password = getpass.getpass()
