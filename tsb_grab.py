@@ -87,6 +87,7 @@ def tsb_grab():
 
     #################################################################
     #### Get my.brocade.com entitlement cookies
+    print("Gathering user entitlement")
     r_entitle = s.get(url_my_brocade_wps)
     entitle_soup = BeautifulSoup(r_entitle.text, 'html.parser')
 
@@ -96,6 +97,7 @@ def tsb_grab():
 
     # Add entitlement cookie to cookiejar for session
     s.cookies.set('mybrocInfo', 'brEntitlement=' + e_code.group(1))
+    print("Entitlement set!\n")
 
     #################################################################
     #### Get the list of products
@@ -131,21 +133,33 @@ def tsb_grab():
 
     #################################################################
     #### Go through every product page
+    # Dictionary for products (key) and uris list (value) 
+    product_tsb_uri_list = {}
+
     for n in range(len(products_ref_list)):
         # Get the TSB list from a product page 
-        query2["queryText"] = products_ref_list[n]
+        product_name = products_ref_list[n]
+        query2["queryText"] = product_name
         r_product = s.post(url_content_query, json=query2)
-        product_tsbs = r_product.json()
+        product_tsbs_json = r_product.json()
+        product_tsbs = product_tsbs_json['response']['hits']['hits']
 
-        print("Getting TSB URL for {0}".format(products_ref_list[n]))
+        #Skip products w/ no TSBs
+        if( len(product_tsbs) is not 0 ):
+            product_tsb_uri_list[product_name] = []
+            print("Gathering TSB URLs for {0}".format(product_name))
+            #Print/Store the TSBs URL list for that product
+            for i in range(len(product_tsbs)):
+                tsb_path = product_tsbs[i]['fields']['filepath'][0]
+                #Print TSB 
+                #print(tsb_path)
+                #Store TSB URI
+                product_tsb_uri_list[product_name].append(url_brocade + tsb_path)
+            #print()
+        else:
+            print("Skipping {0} (No TSBs)".format(product_name))
 
-        #Print the TSBs URL list for that product
-        for i in range(len(product_tsbs['response']['hits']['hits'])):
-            tsb_path = product_tsbs['response']['hits']['hits'][i]['fields']['filepath'][0]
-            #Print TSB 
-            print(tsb_path)
-            #Store TSB URI
-        print()
+    print(*product_tsb_uri_list.items(), sep='\n')
 
     #################################################################
     #### Compare the URI list to the downloaded TSBs list and download any new TSBs
