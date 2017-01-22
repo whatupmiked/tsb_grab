@@ -80,14 +80,22 @@ def tsb_grab():
 
     #################################################################
     #### Authenticate to my.brocade.com and store the session cookies.
+    print('#'*40)
+    print("# Logging in to my.brocade.com")
+    print('#'*40)
+
     post_data = {'username': username, 'password' : password}
     r_login = s.post(url_login, data=post_data)
 
-    print(r_login.text)
+    login_soup = BeautifulSoup(r_login.text, 'html.parser')
+    print( (login_soup.find('p')).text )
 
     #################################################################
     #### Get my.brocade.com entitlement cookies
-    print("Gathering user entitlement")
+    print('#'*40)
+    print("# Gathering user entitlement")
+    print('#'*40)
+
     r_entitle = s.get(url_my_brocade_wps)
     entitle_soup = BeautifulSoup(r_entitle.text, 'html.parser')
 
@@ -125,14 +133,18 @@ def tsb_grab():
 
     #Remove duplicates
     # Should be no duplicates???
-    products_ref_set = set(products_ref_list)
-    products_ref_list = sorted(list(products_ref_set))
+    #products_ref_set = set(products_ref_list)
+    #products_ref_list = sorted(list(products_ref_set))
 
     #################################################################
     #### Build list of currently downloaded TSBs
 
     #################################################################
     #### Go through every product page
+    print("#"*40)
+    print('# Building TSB list from my.brocade.com')
+    print("#"*40)
+
     # Dictionary for products (key) and uris list (value) 
     product_tsb_uri_list = {}
 
@@ -157,11 +169,46 @@ def tsb_grab():
                 product_tsb_uri_list[product_name].append(url_brocade + tsb_path)
             #print()
         else:
-            print("Skipping {0} (No TSBs)".format(product_name))
+            print("  Skipping product: {0} (No TSBs)".format(product_name))
 
-    print(*product_tsb_uri_list.items(), sep='\n')
+    #print(*product_tsb_uri_list.items(), sep='\n')
 
     #################################################################
     #### Compare the URI list to the downloaded TSBs list and download any new TSBs
+    print()
+    print("#"*40)
+    print('# Checking for TSBs to download')
+    print("#"*40)
 
+    tsbs_downloaded = 0
+
+    #Iterate over each product
+    for product in product_tsb_uri_list:
+        product_path = 'tsbs/' + product
+        tsb_uri_list = product_tsb_uri_list[product]
+
+        #Create product directory
+        if not ( os.path.exists(product_path) ):
+            os.makedirs( product_path )
+
+        #Iterate over each TSB for each product and download it if it does not exist
+        for i in range(len(tsb_uri_list)):
+            #Split the URI into a last and get the last element
+            tsb_name = (tsb_uri_list[i].split('/'))[-1]
+            tsb_path = product_path + "/" + tsb_name
+            if not ( os.path.exists( tsb_path )):
+                print("Downloading {0}".format(tsb_name))
+                r_pdf = s.get( tsb_uri_list[i] )
+                with open(tsb_path, 'wb') as f:
+                    f.write(r_pdf.content)
+
+                print("  Saved {0}".format(tsb_path))
+                tsbs_downloaded += 1
+            #else:
+                #print("TSB already downloaded: {0}".format(tsb_path))
+    print()
+    print("Total new TSBs found: {0}".format(tsbs_downloaded))
+
+    # End of tsb_grab()
+    ################################################################
 tsb_grab()
