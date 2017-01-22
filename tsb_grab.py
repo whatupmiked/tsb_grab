@@ -20,7 +20,7 @@ def tsb_grab():
     parser.add_argument("--fav", action="store_true", dest="onlyFavorites",
                       help="Handle only TSBs for Brocade products, an authenticated user has choosen as favorite")
     parser.add_argument("--no-fav", action="store_false", dest="onlyFavorites",
-                      help="Handle TSBs for all Brocade products")
+                      help="Handle TSBs for all Brocade products (Default)")
     args = parser.parse_args()
 
     onlyFavorites = args.onlyFavorites
@@ -115,6 +115,7 @@ def tsb_grab():
     # Parse the product list
     product_list_soup = BeautifulSoup(r_product_list.text, 'html.parser')
 
+    # Select either product favorites or full product list based on command-line input
     product_list_wanted = None
     if onlyFavorites == True:
         product_list_wanted = product_list_soup.find('div', class_="product-listing__category product-listing__category-favourites")
@@ -123,25 +124,20 @@ def tsb_grab():
 
     product_url_list = product_list_wanted.select('a.product-listing__product-link')
 
+    #Transform the <a href> tags into just the product reference
     products_ref_list = []
 
-    #Transform the a tags into just the product reference
     for i in range(len(product_url_list)):
         #Get the pCode value and add it products_ref_list pCode=<code>&pName=<name>
         products_ref_list.append( (re.search('pCode=(.*?)\&', product_url_list[i]['href'])).group(1) )
 
-    #Remove duplicates
-    # Should be no duplicates???
-    #products_ref_set = set(products_ref_list)
-    #products_ref_list = sorted(list(products_ref_set))
-
-    #################################################################
-    #### Build list of currently downloaded TSBs
-
     #################################################################
     #### Go through every product page
     print("#"*40)
-    print('# Building TSB list from my.brocade.com')
+    if not (onlyFavorites):
+        print('# Building TSB list from my.brocade.com')
+    else:
+        print('# Building TSB list from my.brocade.com favorites only')
     print("#"*40)
 
     # Dictionary for products (key) and uris list (value) 
@@ -192,7 +188,7 @@ def tsb_grab():
 
         #Iterate over each TSB for each product and download it if it does not exist
         for i in range(len(tsb_uri_list)):
-            #Split the URI into a last and get the last element
+            #Split the URI into a list and get the last element
             tsb_name = (tsb_uri_list[i].split('/'))[-1]
             tsb_path = product_path + "/" + tsb_name
             if not ( os.path.exists( tsb_path )):
