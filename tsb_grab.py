@@ -5,26 +5,25 @@ import ssl
 from bs4 import BeautifulSoup
 import os
 import re
-from optparse import OptionParser
-#import argparse
+import argparse
 
 def tsb_grab():
 
     #######################################################
     #### Parse Command-line options
-    # Let's switch to argparse later
-    # http://stackoverflow.com/questions/3217673/why-use-argparse-rather-than-optparse
-    parser = OptionParser(usage="usage: %prog [options]")
+    parser = argparse.ArgumentParser(description="""Fetches new Brocade Technical Service Bulletins (TSB), stores them
+                                                    in the local directory and finally shows a `new TSB` notification in
+                                                    Brocade Workflow Composer""")    #fixme later
 
     parser.set_defaults(onlyFavorites = False)
 
-    parser.add_option("--fav", action="store_true", dest="onlyFavorites",
+    parser.add_argument("--fav", action="store_true", dest="onlyFavorites",
                       help="Handle only TSBs for Brocade products, an authenticated user has choosen as favorite")
-    parser.add_option("--no-fav", action="store_false", dest="onlyFavorites",
+    parser.add_argument("--no-fav", action="store_false", dest="onlyFavorites",
                       help="Handle TSBs for all Brocade products")
-    (options, args) = parser.parse_args()
+    args = parser.parse_args()
 
-    onlyFavorites = options.onlyFavorites
+    onlyFavorites = args.onlyFavorites
 
     #######################################################
     #### Query user for credentials
@@ -45,7 +44,7 @@ def tsb_grab():
 
     # my.brocade.com secure query JSON template 
     query2 = {
-        "queryText":"icx7750",
+        "queryText":"",
         "langCode":"en",
         "aggsSize":0,
         "size":20,
