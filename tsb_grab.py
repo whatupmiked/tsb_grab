@@ -86,6 +86,10 @@ def tsb_grab():
     post_data = {'username': username, 'password' : password}
     r_login = s.post(url_login, data=post_data)
 
+    if (r_login.status_code!=200):  #200=OK
+       print("Encountered error {} during authentication\n{}".format(r_login.status_code, r_login.reason))
+       return False
+
     login_soup = BeautifulSoup(r_login.text, 'html.parser')
     print( (login_soup.find('p')).text )
 
