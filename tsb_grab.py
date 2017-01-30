@@ -16,23 +16,43 @@ def tsb_grab():
                                                     Brocade Workflow Composer""")    #fixme later
 
     parser.set_defaults(onlyFavorites = False)
+    parser.set_defaults(credPath = None)
 
     parser.add_argument("--fav", action="store_true", dest="onlyFavorites",
-                      help="Handle only TSBs for Brocade products, an authenticated user has choosen as favorite")
+                        help="Handle only TSBs for Brocade products, an authenticated user has choosen as favorite")
     parser.add_argument("--no-fav", action="store_false", dest="onlyFavorites",
-                      help="Handle TSBs for all Brocade products (Default)")
+                        help="Handle TSBs for all Brocade products (Default)")
+    parser.add_argument("-d", action="store", dest="credPath",
+                        help="path to file with user-name and password. Format in file 'username password'")
+
     args = parser.parse_args()
 
     onlyFavorites = args.onlyFavorites
+    credPath = args.credPath
 
     #######################################################
-    #### Query user for credentials
-    username = input("Username: ")
-    password = getpass.getpass()
+    #### Handle credentials
+    if( credPath is not None ):
 
-    if( (username is None) or (password is None) ):
-        print("No user-name or password defined, check help (tsb_grab -h)")
-        return False
+        with open(credPath) as cf:
+            credentials = cf.readline()
+
+        creds = credentials.split()
+
+        if( len(creds) is not 2 ):
+            print("ERROR: Incorrectly formatted credentials in credentials file {0}. Format in file should be 'username password'".format(credPath))
+            return false
+        else:
+            username = creds[0]
+            password = creds[1]
+
+    else:
+        username = input("Username: ")
+        password = getpass.getpass()
+
+        if( (username is None) or (password is None) ):
+            print("No user-name or password defined, check help (tsb_grab -h)")
+            return False
 
     #######################################################
     #### Variables for querys
