@@ -11,24 +11,28 @@ def tsb_grab():
 
     #######################################################
     #### Parse Command-line options
-    parser = argparse.ArgumentParser(description="""Fetches new Brocade Technical Service Bulletins (TSB), stores them
-                                                    in the local directory and finally shows a `new TSB` notification in
-                                                    Brocade Workflow Composer""")    #fixme later
+    parser = argparse.ArgumentParser(description="""Fetches new Brocade Technical Service Bulletins (TSB) stores them
+                                                    in the local directory.""")    #fixme later
 
     parser.set_defaults(onlyFavorites = False)
     parser.set_defaults(credPath = None)
+    parser.set_defaults(verbose = False)
+    parser.set_defaults(tsbPath = "tsbs")
 
     parser.add_argument("--fav", action="store_true", dest="onlyFavorites",
                         help="Handle only TSBs for Brocade products, an authenticated user has choosen as favorite")
-    parser.add_argument("--no-fav", action="store_false", dest="onlyFavorites",
-                        help="Handle TSBs for all Brocade products (Default)")
-    parser.add_argument("-d", action="store", dest="credPath",
-                        help="path to file with user-name and password. Format in file 'username password'")
+    parser.add_argument("--cred", action="store", dest="credPath",
+                        help="Path to file with user-name and password credentials. Format in file 'username password'")
+    parser.add_argument("--path", action="store", dest="tsbPath",
+                        help="Directory where you want to store the TSBs assumes there is no trailing /")
+    parser.add_argument("-v", action="store_true", dest="verbose", help="Add verbose output for downloaded TSBs")
 
     args = parser.parse_args()
 
     onlyFavorites = args.onlyFavorites
     credPath = args.credPath
+    verbose = args.verbose
+    tsbPath = args.tsbPath
 
     #######################################################
     #### Handle credentials
@@ -161,7 +165,7 @@ def tsb_grab():
     if not (onlyFavorites):
         print('# Building TSB list from my.brocade.com')
     else:
-        print('# Building TSB list from my.brocade.com favorites only')
+        print('# Building TSB list from my.brocade.com FAVORITES only')
     print("#"*40)
 
     # Dictionary for products (key) and uris list (value) 
@@ -178,7 +182,7 @@ def tsb_grab():
         #Skip products w/ no TSBs
         if( len(product_tsbs) is not 0 ):
             product_tsb_uri_list[product_name] = []
-            print("Gathering TSB URLs for {0}".format(product_name))
+            if verbose: print("Gathering TSB URLs for {0}".format(product_name))
             #Print/Store the TSBs URL list for that product
             for i in range(len(product_tsbs)):
                 tsb_path = product_tsbs[i]['fields']['filepath'][0]
@@ -188,7 +192,7 @@ def tsb_grab():
                 product_tsb_uri_list[product_name].append(url_brocade + tsb_path)
             #print()
         else:
-            print("  Skipping product: {0} (No TSBs)".format(product_name))
+            if verbose: print("  Skipping product: {0} (No TSBs)".format(product_name))
 
     #print(*product_tsb_uri_list.items(), sep='\n')
 
@@ -203,7 +207,7 @@ def tsb_grab():
 
     #Iterate over each product
     for product in product_tsb_uri_list:
-        product_path = 'tsbs/' + product
+        product_path = tsbPath + "/" + product
         tsb_uri_list = product_tsb_uri_list[product]
 
         #Create product directory
@@ -216,7 +220,7 @@ def tsb_grab():
             tsb_name = (tsb_uri_list[i].split('/'))[-1]
             tsb_path = product_path + "/" + tsb_name
             if not ( os.path.exists( tsb_path )):
-                print("Downloading {0}".format(tsb_name))
+                if verbose: print("Downloading {0}".format(tsb_name))
                 r_pdf = s.get( tsb_uri_list[i] )
                 with open(tsb_path, 'wb') as f:
                     f.write(r_pdf.content)
