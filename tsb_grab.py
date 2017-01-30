@@ -20,12 +20,12 @@ def tsb_grab():
     parser.set_defaults(tsbPath = "tsbs")
 
     parser.add_argument("--fav", action="store_true", dest="onlyFavorites",
-                        help="Handle only TSBs for Brocade products, an authenticated user has choosen as favorite")
+                        help="Handle only TSBs for Brocade products an authenticated user has choosen as favorite")
     parser.add_argument("--cred", action="store", dest="credPath",
-                        help="Path to file with user-name and password credentials. Format in file 'username password'")
+                        help="Path to file with user-name and password credentials. String format in file 'username password'.")
     parser.add_argument("--path", action="store", dest="tsbPath",
-                        help="Directory where you want to store the TSBs assumes there is no trailing /")
-    parser.add_argument("-v", action="store_true", dest="verbose", help="Add verbose output for downloaded TSBs")
+                        help="Directory where you want to store the TSBs. Assumes there is no trailing / in path name.")
+    parser.add_argument("-v", action="store_true", dest="verbose", help="Add verbose logging output for downloaded TSBs.")
 
     args = parser.parse_args()
 
