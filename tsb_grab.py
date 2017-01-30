@@ -103,9 +103,10 @@ def tsb_grab():
 
     #################################################################
     #### Authenticate to my.brocade.com and store the session cookies.
-    print('#'*40)
-    print("# Logging in to my.brocade.com")
-    print('#'*40)
+    if verbose:
+        print('#'*40)
+        print("# Logging in to my.brocade.com")
+        print('#'*40)
 
     post_data = {'username': username, 'password' : password}
     r_login = s.post(url_login, data=post_data)
@@ -115,13 +116,14 @@ def tsb_grab():
        return False
 
     login_soup = BeautifulSoup(r_login.text, 'html.parser')
-    print( (login_soup.find('p')).text )
+    if verbose: print( (login_soup.find('p')).text )
 
     #################################################################
     #### Get my.brocade.com entitlement cookies
-    print('#'*40)
-    print("# Gathering user entitlement")
-    print('#'*40)
+    if verbose:
+        print('#'*40)
+        print("# Gathering user entitlement")
+        print('#'*40)
 
     r_entitle = s.get(url_my_brocade_wps)
     entitle_soup = BeautifulSoup(r_entitle.text, 'html.parser')
@@ -132,7 +134,7 @@ def tsb_grab():
 
     # Add entitlement cookie to cookiejar for session
     s.cookies.set('mybrocInfo', 'brEntitlement=' + e_code.group(1))
-    print("Entitlement set!\n")
+    if verbose: print("Entitlement set!\n")
 
     #################################################################
     #### Get the list of products
@@ -161,12 +163,13 @@ def tsb_grab():
 
     #################################################################
     #### Go through every product page
-    print("#"*40)
-    if not (onlyFavorites):
-        print('# Building TSB list from my.brocade.com')
-    else:
-        print('# Building TSB list from my.brocade.com FAVORITES only')
-    print("#"*40)
+    if verbose:
+        print("#"*40)
+        if not (onlyFavorites):
+            print('# Building TSB list from my.brocade.com')
+        else:
+            print('# Building TSB list from my.brocade.com FAVORITES only')
+        print("#"*40)
 
     # Dictionary for products (key) and uris list (value) 
     product_tsb_uri_list = {}
@@ -198,10 +201,11 @@ def tsb_grab():
 
     #################################################################
     #### Compare the URI list to the downloaded TSBs list and download any new TSBs
-    print()
-    print("#"*40)
-    print('# Checking for TSBs to download')
-    print("#"*40)
+    if verbose:
+        print()
+        print("#"*40)
+        print('# Checking for TSBs to download')
+        print("#"*40)
 
     tsbs_downloaded = 0
 
