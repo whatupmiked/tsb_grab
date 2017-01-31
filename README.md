@@ -11,8 +11,31 @@ git clone htttps://www.github.com/whatupmiked/tsb_grab
 ```  
 #### Add Python 3 modules to your system.  
 
+1. Determine if python3 is installed  
+```
+python3  
+```
+  - Ubuntu installation (Installed by default on 14 & 16):
+    ```
+    sudo apt-get update
+    ```
+  - Redhat7 installation (Installed by default on 14 & 16):
+    ```
+    sudo yum update
+    ```
+  - Centos7 installation:
+    ```
+    yum install epel-release  
+    yum install python34 python-pip  
+    yum install python34-setuptools  
+    easy_install-3.4 pip
+    ```
+
+2. Install modules   
+```
 pip3 install requests  
 pip3 install beautifulsoup4  
+```
 
 ## Usage Examples  
 
@@ -24,11 +47,11 @@ Gather username/password details from a file called 'myPasswordFile' in the scri
 ```  
 python3 tsb_grab -v --cred myPasswordFile --path ~/Brocade/TSBs --fav  
 ```
-*_NOTE_: When using a credentials file it is recommended that the file permissions are changed so that the file is not read-able by all users.* 
+*NOTE: When using a credentials file it is recommended that the file permissions are changed so that the file is not read-able by all users.* 
 
 ## Stackstorm Integration  
 
-Stackstorm is an opensource automation too. Documentation can be found at http://docs.stackstorm.com.  
+Stackstorm is an opensource automation tool. Documentation can be found at http://docs.stackstorm.com.  
 
 An example stackstorm rule has been provided in tsb_grab.3min.yaml.
 
@@ -36,12 +59,4 @@ To add the rule to your existing stackstorm installation via command-line:
 ```
 st2 rule create tsb_grab.3min.yaml  
 ```
-*_NOTE_: Change the parameters in the yaml for your script location, credentials location, and path where you want the script stored.*   
-
-## python3  
-
-#### CENTOS 7 Python3.4 installation steps  
-  1. yum install epel-release  
-  2. yum install python34 python-pip  
-  3. yum install python34-setuptools  
-  4. easy_install-3.4 pip
+*NOTE: Change the parameters in the yaml for your script location, credentials location, and path where you want the script stored.*   
