@@ -9,7 +9,7 @@ TSBs will be downloaded to a directory called 'tsbs\<product-name\>'. If the TSB
 ```  
 git clone htttps://www.github.com/whatupmiked/tsb_grab  
 ```  
-#### Added Python 3 modules to your system.  
+#### Add Python 3 modules to your system.  
 
 pip3 install requests  
 pip3 install beautifulsoup4  
@@ -24,7 +24,7 @@ Gather username/password details from a file called 'myPasswordFile' in the scri
 ```  
 python3 tsb_grab -v --cred myPasswordFile --path ~/Brocade/TSBs --fav  
 ```
-*NOTE*: When using a credentials file it is recommended that the file permissions are changed so that the file is not read-able by all users.  
+*_NOTE_: When using a credentials file it is recommended that the file permissions are changed so that the file is not read-able by all users.* 
 
 ## Stackstorm Integration  
 
@@ -36,7 +36,7 @@ To add the rule to your existing stackstorm installation via command-line:
 ```
 st2 rule create tsb_grab.3min.yaml  
 ```
-*NOTE*: Change the parameters in the yaml for your script location, credentials location, and path where you want the script stored.   
+*_NOTE_: Change the parameters in the yaml for your script location, credentials location, and path where you want the script stored.*   
 
 ## python3  
 
@@ -45,4 +45,3 @@ st2 rule create tsb_grab.3min.yaml
   2. yum install python34 python-pip  
   3. yum install python34-setuptools  
   4. easy_install-3.4 pip
-
