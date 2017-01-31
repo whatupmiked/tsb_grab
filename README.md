@@ -11,31 +11,31 @@ git clone htttps://www.github.com/whatupmiked/tsb_grab
 ```  
 #### Add Python 3 modules to your system.  
 
-1. Determine if python3 is installed  
-```
-python3  
-```
-  - Ubuntu installation (Installed by default on 14 & 16):
-    ```
-    sudo apt-get update
-    ```
-  - Redhat7 installation (Installed by default on 14 & 16):
-    ```
-    sudo yum update
-    ```
-  - Centos7 installation:
-    ```
-    yum install epel-release  
-    yum install python34 python-pip  
-    yum install python34-setuptools  
-    easy_install-3.4 pip
-    ```
+  1. Determine if python3 is installed  
+  ```
+  python3  
+  ```
+    - Ubuntu installation (Installed by default on 14 & 16):  
+      ```  
+      sudo apt-get update  
+      ```  
+    - Redhat7 installation (Installed by default on 14 & 16):  
+      ```  
+      sudo yum update  
+      ```  
+    - Centos7 installation:
+      ```
+      yum install epel-release  
+      yum install python34 python-pip  
+      yum install python34-setuptools  
+      easy_install-3.4 pip
+      ```
 
-2. Install modules   
-```
-pip3 install requests  
-pip3 install beautifulsoup4  
-```
+  2. Install modules   
+  ```
+  pip3 install requests  
+  pip3 install beautifulsoup4  
+  ```
 
 ## Usage Examples  
 
