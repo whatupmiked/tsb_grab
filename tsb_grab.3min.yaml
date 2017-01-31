@@ -1,0 +1,22 @@
+---
+    name: "tsb_grab.3min"                     
+    pack: "mybrocade"                       
+    description: "Grab TSBs from my.brocade.com every 3 minutes"       
+    enabled: true                          
+
+    trigger:                               
+        type: "core.st2.IntervalTimer"
+        parameters:
+                delta: 3
+                unit: "minutes"
+
+    criteria: {}
+
+    action:                                
+        ref: "core.local"
+        parameters:                        
+            cmd: "python3 /usr/local/sbin/tsb_grab/tsb_grab.py --cred /usr/local/sbin/tsb_grab/creds --path /home/administrator/tsbs --fav"
+            # Executes the script located at /usr/local/sbin/tsb_grab/tsb_grab.py
+            # A file called "creds" exists in that directory where the usename and password are stored.
+            # The downloaded TSBs will be stored in the home directory of the user "administrator"
+            # Only products marked as "Favorites" on my.brocade.com will be checked
