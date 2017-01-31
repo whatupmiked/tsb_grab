@@ -12,6 +12,7 @@ git clone htttps://www.github.com/whatupmiked/tsb_grab
 #### Add Python 3 modules to your system.  
 
   1. Determine if python3 is installed  
+
   ```
   python3  
   ```
@@ -32,6 +33,7 @@ git clone htttps://www.github.com/whatupmiked/tsb_grab
       ```
 
   2. Install modules   
+
   ```
   pip3 install requests  
   pip3 install beautifulsoup4  
