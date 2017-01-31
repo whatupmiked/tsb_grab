@@ -11,7 +11,7 @@ def tsb_grab():
 
     #######################################################
     #### Parse Command-line options
-    parser = argparse.ArgumentParser(description="""Fetches new Brocade Technical Service Bulletins (TSB) stores them
+    parser = argparse.ArgumentParser(description="""Fetches new Brocade Technical Service Bulletins (TSB) and stores them
                                                     in the local directory.""")    #fixme later
 
     parser.set_defaults(onlyFavorites = False)
@@ -209,7 +209,7 @@ def tsb_grab():
 
     tsbs_downloaded = 0
 
-    #Iterate over each product
+    #Iterate over each product found
     for product in product_tsb_uri_list:
         product_path = tsbPath + "/" + product
         tsb_uri_list = product_tsb_uri_list[product]
@@ -218,13 +218,16 @@ def tsb_grab():
         if not ( os.path.exists(product_path) ):
             os.makedirs( product_path )
 
-        #Iterate over each TSB for each product and download it if it does not exist
+        #Download TSBs for products found if the TSB does not exist on local system.  
         for i in range(len(tsb_uri_list)):
             #Split the URI into a list and get the last element
             tsb_name = (tsb_uri_list[i].split('/'))[-1]
             tsb_path = product_path + "/" + tsb_name
+
             if not ( os.path.exists( tsb_path )):
+
                 if verbose: print("Downloading {0}".format(tsb_name))
+
                 r_pdf = s.get( tsb_uri_list[i] )
                 with open(tsb_path, 'wb') as f:
                     f.write(r_pdf.content)
