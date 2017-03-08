@@ -7,7 +7,7 @@ TSBs will be downloaded to a directory called 'tsbs\<product-name\>'. If the TSB
 #### Download the script  
 
 ```  
-git clone htttps://www.github.com/whatupmiked/tsb_grab  
+git clone https://www.github.com/whatupmiked/tsb_grab  
 ```  
 #### Add Python 3 modules to your system.  
 
