@@ -1,6 +1,6 @@
 Web scrapper for downloading the latest Technical Service Bulletins (TSBs) for Brocade products that your my.brocade.com account has access to.  
 
-TSBs will be downloaded to a directory called 'tsbs\<product-name\>'. If the TSB file already exists it will not be downloaded again. 
+TSBs will be downloaded to a directory called 'tsbs/<product-name>'. If the TSB file already exists it will not be downloaded again. 
 
 ## Installation  
 
