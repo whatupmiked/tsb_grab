@@ -1,51 +1,56 @@
+"""
+Module for interacting with Technical Service Bulletins
+at my.brocade.com
+"""
 #!/usr/bin/python3
 import getpass
-import requests
-import ssl
-from bs4 import BeautifulSoup
 import os
 import re
 import argparse
+import requests
+from bs4 import BeautifulSoup
 
 def tsb_grab():
-
+    """
+    Function executing main script logic
+    """
     #######################################################
     #### Parse Command-line options
     parser = argparse.ArgumentParser(description="""Fetches new Brocade Technical Service Bulletins (TSB) and stores them
                                                     in the local directory.""")    #fixme later
 
-    parser.set_defaults(onlyFavorites = False)
-    parser.set_defaults(credPath = None)
-    parser.set_defaults(verbose = False)
-    parser.set_defaults(tsbPath = "tsbs")
+    parser.set_defaults(only_favorites=False)
+    parser.set_defaults(cred_path=None)
+    parser.set_defaults(verbose=False)
+    parser.set_defaults(tsb_path_name="tsbs")
 
-    parser.add_argument("--fav", action="store_true", dest="onlyFavorites",
+    parser.add_argument("--fav", action="store_true", dest="only_favorites",
                         help="Handle only TSBs for Brocade products an authenticated user has choosen as favorite")
-    parser.add_argument("--cred", action="store", dest="credPath",
+    parser.add_argument("--cred", action="store", dest="cred_path",
                         help="Path to file with user-name and password credentials. String format in file 'username password'.")
-    parser.add_argument("--path", action="store", dest="tsbPath",
+    parser.add_argument("--path", action="store", dest="tsb_path_name",
                         help="Directory where you want to store the TSBs. Assumes there is no trailing / in path name.")
     parser.add_argument("-v", action="store_true", dest="verbose", help="Add verbose logging output for downloaded TSBs.")
 
     args = parser.parse_args()
 
-    onlyFavorites = args.onlyFavorites
-    credPath = args.credPath
+    only_favorites = args.only_favorites
+    cred_path = args.cred_path
     verbose = args.verbose
-    tsbPath = args.tsbPath
+    tsb_path_name = args.tsb_path_name
 
     #######################################################
     #### Handle credentials
-    if( credPath is not None ):
+    if cred_path is not None:
 
-        with open(credPath) as cf:
-            credentials = cf.readline()
+        with open(cred_path) as cred_file:
+            credentials = cred_file.readline()
 
         creds = credentials.split()
 
-        if( len(creds) is not 2 ):
-            print("ERROR: Incorrectly formatted credentials in credentials file {0}. Format in file should be 'username password'".format(credPath))
-            return false
+        if len(creds) is not 2:
+            print("ERROR: Incorrectly formatted credentials in credentials file {0}. Format in file should be 'username password'".format(cred_path))
+            return False
         else:
             username = creds[0]
             password = creds[1]
@@ -54,7 +59,7 @@ def tsb_grab():
         username = input("Username: ")
         password = getpass.getpass()
 
-        if( (username is None) or (password is None) ):
+        if (username is None) or (password is None):
             print("No user-name or password defined, check help (tsb_grab -h)")
             return False
 
@@ -99,7 +104,7 @@ def tsb_grab():
     # Down-grade ciphers for my.brocade.com login 'DES-CBC3-SHA'
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'DES-CBC3-SHA:ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS'
     # End of hack
-    s = requests.Session()
+    s_brocade = requests.Session()
 
     #################################################################
     #### Authenticate to my.brocade.com and store the session cookies.
@@ -109,14 +114,14 @@ def tsb_grab():
         print('#'*40)
 
     post_data = {'username': username, 'password' : password}
-    r_login = s.post(url_login, data=post_data)
+    r_login = s_brocade.post(url_login, data=post_data)
 
-    if (r_login.status_code!=200):  #200=OK
-       print("Encountered error {} during authentication\n{}".format(r_login.status_code, r_login.reason))
-       return False
+    if r_login.status_code != 200:  #200=OK
+        print("Encountered error {} during authentication\n{}".format(r_login.status_code, r_login.reason))
+        return False
 
     login_soup = BeautifulSoup(r_login.text, 'html.parser')
-    if verbose: print( (login_soup.find('p')).text )
+    if verbose: print((login_soup.find('p')).text)
 
     #################################################################
     #### Get my.brocade.com entitlement cookies
@@ -125,7 +130,7 @@ def tsb_grab():
         print("# Gathering user entitlement")
         print('#'*40)
 
-    r_entitle = s.get(url_my_brocade_wps)
+    r_entitle = s_brocade.get(url_my_brocade_wps)
     entitle_soup = BeautifulSoup(r_entitle.text, 'html.parser')
 
     # Extract entitlement string from web-page
@@ -133,21 +138,21 @@ def tsb_grab():
     e_code = re.search('brEntitlement=(.*?)[,;]', entitlement_string.__str__())
 
     # Add entitlement cookie to cookiejar for session
-    s.cookies.set('mybrocInfo', 'brEntitlement=' + e_code.group(1))
+    s_brocade.cookies.set('mybrocInfo', 'brEntitlement=' + e_code.group(1))
     if verbose: print("Entitlement set!\n")
 
     #################################################################
     #### Get the list of products
 
     # Pull the product list
-    r_product_list = s.get(url_product_catalog)
+    r_product_list = s_brocade.get(url_product_catalog)
 
     # Parse the product list
     product_list_soup = BeautifulSoup(r_product_list.text, 'html.parser')
 
     # Select either product favorites or full product list based on command-line input
     product_list_wanted = None
-    if onlyFavorites == True:
+    if only_favorites == True:
         product_list_wanted = product_list_soup.find('div', class_="product-listing__category product-listing__category-favourites")
     else:
         product_list_wanted = product_list_soup.find('div', class_="product-listing__category-container")
@@ -159,37 +164,37 @@ def tsb_grab():
 
     for i in range(len(product_url_list)):
         #Get the pCode value and add it products_ref_list pCode=<code>&pName=<name>
-        products_ref_list.append( (re.search('pCode=(.*?)\&', product_url_list[i]['href'])).group(1) )
+        products_ref_list.append((re.search('pCode=(.*?)\&', product_url_list[i]['href'])).group(1))
 
     #################################################################
     #### Go through every product page
     if verbose:
         print("#"*40)
-        if not (onlyFavorites):
+        if not only_favorites:
             print('# Building TSB list from my.brocade.com')
         else:
             print('# Building TSB list from my.brocade.com FAVORITES only')
         print("#"*40)
 
-    # Dictionary for products (key) and uris list (value) 
+    # Dictionary for products (key) and uris list (value)
     product_tsb_uri_list = {}
 
     for n in range(len(products_ref_list)):
-        # Get the TSB list from a product page 
+        # Get the TSB list from a product page
         product_name = products_ref_list[n]
         query2["queryText"] = product_name
-        r_product = s.post(url_content_query, json=query2)
+        r_product = s_brocade.post(url_content_query, json=query2)
         product_tsbs_json = r_product.json()
         product_tsbs = product_tsbs_json['response']['hits']['hits']
 
         #Skip products w/ no TSBs
-        if( len(product_tsbs) is not 0 ):
+        if len(product_tsbs) is not 0:
             product_tsb_uri_list[product_name] = []
             if verbose: print("Gathering TSB URLs for {0}".format(product_name))
             #Print/Store the TSBs URL list for that product
             for i in range(len(product_tsbs)):
                 tsb_path = product_tsbs[i]['fields']['filepath'][0]
-                #Print TSB 
+                #Print TSB
                 #print(tsb_path)
                 #Store TSB URI
                 product_tsb_uri_list[product_name].append(url_brocade + tsb_path)
@@ -211,26 +216,26 @@ def tsb_grab():
 
     #Iterate over each product found
     for product in product_tsb_uri_list:
-        product_path = tsbPath + "/" + product
+        product_path = tsb_path_name + "/" + product
         tsb_uri_list = product_tsb_uri_list[product]
 
         #Create product directory
-        if not ( os.path.exists(product_path) ):
-            os.makedirs( product_path )
+        if not os.path.exists(product_path):
+            os.makedirs(product_path)
 
-        #Download TSBs for products found if the TSB does not exist on local system.  
+        #Download TSBs for products found if the TSB does not exist on local system
         for i in range(len(tsb_uri_list)):
             #Split the URI into a list and get the last element
             tsb_name = (tsb_uri_list[i].split('/'))[-1]
             tsb_path = product_path + "/" + tsb_name
 
-            if not ( os.path.exists( tsb_path )):
+            if not os.path.exists(tsb_path):
 
                 if verbose: print("Downloading {0}".format(tsb_name))
 
-                r_pdf = s.get( tsb_uri_list[i] )
-                with open(tsb_path, 'wb') as f:
-                    f.write(r_pdf.content)
+                r_pdf = s_brocade.get(tsb_uri_list[i])
+                with open(tsb_path, 'wb') as f_path:
+                    f_path.write(r_pdf.content)
 
                 print("  Saved {0}".format(tsb_path))
                 tsbs_downloaded += 1
