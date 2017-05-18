@@ -2,6 +2,8 @@ Web scrapper for downloading the latest Technical Service Bulletins (TSBs) for B
 
 TSBs will be downloaded to a directory called 'tsbs\<product-name\>'. If the TSB file already exists it will not be downloaded again. 
 
+[![Alt text](https://img.youtube.com/vi/DJkTkVqwiSA/0.jpg)](https://www.youtube.com/watch?v=DJkTkVqwiSA)
+
 ## Installation  
 
 #### Download the script  
